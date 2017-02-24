@@ -1,0 +1,26 @@
+{
+  "name": "http-api-assignment-ii",
+  "version": "1.0.0",
+  "description": "HTTP API assignment II for 430",
+  "main": "./src/server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src/ --fix",
+    "test": "echo \"Tests Complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MHagge/http-api-assignment-ii.git"
+  },
+  "author": "Muriel Hagge",
+  "license": "UNLICENCED",
+  "bugs": {
+    "url": "https://github.com/MHagge/http-api-assignment-ii/issues"
+  },
+  "homepage": "https://github.com/MHagge/http-api-assignment-ii#readme",
+  "devDependencies": {
+    "eslint": "^3.16.1",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0"
+  }
+}

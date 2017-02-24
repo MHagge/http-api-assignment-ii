@@ -6,7 +6,134 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+  ()=>{
+    "use strict";
 
+    const handleResponse = (xhr, parseResponse) => {
+      const content = document.querySelector('#content');
+      
+      //MAKE SURE DISABLE CACHE IS UNCHECKED
+      //printing the etag for version number of this response
+      console.log(xhr.getResponseHeader ('etag'));
+      
+      //Check network tag for real status code
+      console.log(xhr.status);
+      
+      //depending on which headers are used
+      //The browser will either re-fire a 200 or will show a 304.
+      switch(xhr.status) {
+        case 200: //if success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 201: //if created
+          content.innerHTML = '<b>Create</b>';
+          break;
+        case 204:
+          content.innerHTML = '<b>Updated(No Content)</b>';
+          break;
+        case 304: //if not modified
+          //THIS may only fire under certain circumstances
+          //Often a 200 will fire because this will tell the
+          //browser to pull from cache (which was a 200 response)
+          content.innerHTML = '<b>Not Modified</b>';
+          break;
+        case 400: //if bad request
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 404: //if not found
+          content.innerHTML = `<b>Resource Not Found</b>`;
+          break;
+        default: //any other status
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }
+      
+      //if we are expecting a response body (not in a 304 or head request)
+      console.log("WHY GOD:");
+      console.dir(xhr);
+
+      
+      if(xhr.response) {
+        //parse the object and print it
+        const obj = JSON.parse(xhr.response);
+        console.log("death:");
+        console.dir(obj);
+        
+        content.innerHTML += `<p> ${JSON.stringify(obj)} </p>`;
+      }
+    };
+
+    
+    const addUserAjax = (e, nameForm) => {
+      //grab name and age to send as params
+      const nameField = nameForm.querySelector("#nameField");
+      const ageField = nameForm.querySelector("#ageField");
+      //string it
+      const paramsString = `name=${nameField.value}&age=${ageField.value}`;
+      //const params = query.parse(paramsString);
+      
+      //create a new xhr request 
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/addUser');
+      
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      
+      //set our requested response type in hopes of a JSON response
+      xhr.setRequestHeader ('Accept', 'application/json');
+      
+      xhr.onload = () => handleResponse(xhr, true);
+      
+      //send our ajax request to the server
+      xhr.send(paramsString);
+      
+      e.preventDefault();
+      return false;
+    };
+    
+    const getUserAjax = (e, userForm) => {
+      //console.log('e: ' + e);
+      //grab method type, url
+      const methodType = userForm.querySelector("#methodSelect");
+      const url = userForm.querySelector("#urlField");
+
+      //create a new xhr request
+      const xhr = new XMLHttpRequest();
+      
+      xhr.open(methodSelect.value, urlField.value);
+      
+      //set our requested response type in hopes of a JSON response
+      xhr.setRequestHeader ('Accept', 'application/json');
+      
+      
+      let parseResponse  = false;
+      if(xhr.method === 'GET'){
+        parseResponse = true;
+      }
+      xhr.onload = () => handleResponse(xhr, parseResponse);
+      
+      //send our ajax request to the server
+      xhr.send();
+      
+      e.preventDefault();
+      return false;      
+    };
+    
+    const init = () => {
+      //grab forms
+      const nameForm = document.querySelector("#nameForm");
+      const userForm = document.querySelector("#userForm");
+      
+      //attach event listeners
+      nameForm.addEventListener('submit', (e) => {
+        addUserAjax(e, nameForm);
+      });
+      userForm.addEventListener('submit',  (e) => { 
+        getUserAjax(e, userForm);
+      });
+      
+    };
+    window.onload = init;
+  }();
   </script>
 </head>
 <body>
@@ -32,6 +159,7 @@
     </form>
   </section>
   <section id="content">
+    <div id="userList"></div>
   </section>
 </body>
 </html>
